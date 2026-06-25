@@ -76,10 +76,16 @@ with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
 if new_game:
+    # FIX: New Game now resets the FULL game state, with Claude Code in agent mode.
+    # Previously it only reset attempts + secret, leaving status="won"/"lost" (and
+    # stale score/history), so after a finished game the button did nothing — the
+    # game-over branch below kept firing. The secret also now uses the difficulty's
+    # range (was hardcoded 1-100).
     st.session_state.attempts = 0
-    # FIX: New Game now draws the secret from the difficulty's range (was hardcoded
-    # 1-100, ignoring difficulty). Caught with Claude Code in agent mode.
     st.session_state.secret = random.randint(low, high)
+    st.session_state.status = "playing"
+    st.session_state.score = 0
+    st.session_state.history = []
     st.success("New game started.")
     st.rerun()
 

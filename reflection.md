@@ -14,9 +14,9 @@ Document at least 3 bugs you found. Add rows as needed.
 
 | Input | Expected Behavior | Actual Behavior | Console Output / Error |
 |-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+| 60 | "Go Lower" |"Go Higher"| None |
+| 12 | "Go Higher"| "Go Lower" | None |
+| New Game | New game started | New secret was generated but new guesses were not allowed | None |
 
 ---
 

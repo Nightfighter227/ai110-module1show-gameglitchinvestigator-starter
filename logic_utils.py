@@ -1,3 +1,6 @@
+# FIX: Moved here from app.py and corrected the Hard range, using Claude Code in
+# agent mode. Hard used to return 1-50 (narrower than Normal's 1-100); it now widens
+# to 1-200 so difficulty actually scales up.
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
     if difficulty == "Easy":
@@ -42,6 +45,8 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
+        # FIX: I fixed the Go LOWER / Go HIGHER mismatch myself — the hint
+        # directions were swapped relative to the guess being too high/low.
         if guess > secret:
             return "Too High", "📈 Go LOWER!"
         else:
@@ -57,6 +62,9 @@ def check_guess(guess, secret):
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
     """Update score based on outcome and attempt number."""
+    # FIX: Two scoring glitches fixed with Claude Code in agent mode — the win
+    # bonus was off by one (attempt_number + 1, under-rewarding fast wins; now -1),
+    # and a "Too High" guess used to ADD points on even attempts; it now always -5.
     if outcome == "Win":
         points = 100 - 10 * (attempt_number - 1)
         if points < 10:

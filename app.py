@@ -1,6 +1,8 @@
 import random
 import streamlit as st
 
+# FIX: Refactored game logic out of app.py into logic_utils.py and imported it
+# here, using Claude Code in agent mode (I asked for the move; it edited both files).
 from logic_utils import (
     get_range_for_difficulty,
     parse_guess,
@@ -21,6 +23,8 @@ difficulty = st.sidebar.selectbox(
     index=1,
 )
 
+# FIX: Reordered attempt limits so they decrease with difficulty (Normal used to
+# get more attempts than Easy). Found and corrected with Claude Code in agent mode.
 attempt_limit_map = {
     "Easy": 10,
     "Normal": 7,
@@ -37,6 +41,8 @@ if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
 
 if "attempts" not in st.session_state:
+    # FIX: I fixed this myself — attempts must start at 0 (was 1, which threw the
+    # attempt count and "attempts left" off by one from the first guess).
     st.session_state.attempts = 0
 
 if "score" not in st.session_state:
@@ -50,8 +56,9 @@ if "history" not in st.session_state:
 
 st.subheader("Make a guess")
 
-# Reserve the visual slots here; they're filled in *after* a guess is
-# processed below, so they reflect the current state instead of lagging.
+# FIX: The history/attempts display lagged one guess behind because it rendered
+# before the guess was processed. Claude (agent mode) reworked this into st.empty()
+# placeholders reserved here and filled below, so the view always shows current state.
 info_placeholder = st.empty()
 debug_placeholder = st.empty()
 
@@ -70,6 +77,8 @@ with col3:
 
 if new_game:
     st.session_state.attempts = 0
+    # FIX: New Game now draws the secret from the difficulty's range (was hardcoded
+    # 1-100, ignoring difficulty). Caught with Claude Code in agent mode.
     st.session_state.secret = random.randint(low, high)
     st.success("New game started.")
     st.rerun()
@@ -79,6 +88,8 @@ if st.session_state.status != "playing":
         st.success("You already won. Start a new game to play again.")
     else:
         st.error("Game over. Start a new game to try again.")
+# FIX: Changed st.stop() to elif so execution still reaches the placeholder-fill
+# below on the game-over screen. Done with Claude Code in agent mode.
 elif submit:
     st.session_state.attempts += 1
 
@@ -90,6 +101,9 @@ elif submit:
     else:
         st.session_state.history.append(guess_int)
 
+        # FIX: Removed the every-other-turn `str(secret)` cast that broke
+        # comparisons (a correct guess couldn't win on even attempts). Claude
+        # (agent mode) now always compares against the real int secret.
         secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
@@ -119,7 +133,8 @@ elif submit:
                     f"Score: {st.session_state.score}"
                 )
 
-# Fill the slots reserved above, now that state is up to date.
+# FIX: Fill the reserved slots now that state is current. The range text also uses
+# {low}/{high} (was hardcoded "1 and 100"). Reworked with Claude Code in agent mode.
 info_placeholder.info(
     f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
